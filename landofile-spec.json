@@ -468,6 +468,60 @@
               80,
               false
             ]
+          },
+          "creds": {
+            "type": "object",
+            "description": "Database credentials configuration for MySQL and MariaDB services. Allows customizing the database user, password, and database name.",
+            "properties": {
+              "user": {
+                "type": "string",
+                "description": "The database username to create and use for connections.",
+                "minLength": 1,
+                "examples": [
+                  "drupal11",
+                  "steve",
+                  "myapp"
+                ]
+              },
+              "password": {
+                "type": "string",
+                "description": "The password for the database user.",
+                "minLength": 1,
+                "examples": [
+                  "drupal11",
+                  "doggie123",
+                  "secure_password"
+                ]
+              },
+              "database": {
+                "type": "string",
+                "description": "The name of the database to create.",
+                "minLength": 1,
+                "examples": [
+                  "drupal11",
+                  "myapp",
+                  "wordpress"
+                ]
+              }
+            },
+            "required": [
+              "user",
+              "password",
+              "database"
+            ],
+            "additionalProperties": false,
+            "examples": [
+              {
+                "user": "drupal11",
+                "password": "drupal11",
+                "database": "drupal11"
+              },
+              {
+                "user": "steve",
+                "password": "doggie123",
+                "database": "drupal11"
+              }
+            ]
           }
         },
         "allOf": [
@@ -541,6 +595,24 @@
                 "type": {
                   "type": "string",
                   "pattern": "^mailhog(:[a-zA-Z0-9._-]+)?$"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "creds"
+              ]
+            },
+            "then": {
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "pattern": "^(mysql|mariadb)(:[a-zA-Z0-9._-]+)?$"
                 }
               },
               "required": [
