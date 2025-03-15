@@ -522,6 +522,36 @@
                 "database": "drupal11"
               }
             ]
+          },
+          "app_mount": {
+            "description": "Controls how the application codebase is mounted in the container. Lando automatically mounts your codebase at /app using the :cached performance optimization flag by default. Set to false or 'disabled' to prevent mounting, or specify a different Docker bind mount flag like 'ro' (read-only) or 'delegated'.",
+            "oneOf": [
+              {
+                "type": "boolean",
+                "enum": [
+                  false
+                ],
+                "description": "Disable application code mounting entirely."
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "disabled"
+                ],
+                "description": "Disable application code mounting entirely."
+              },
+              {
+                "type": "string",
+                "pattern": "^(ro|rw|delegated|cached|consistent)$",
+                "description": "Docker bind mount flag to use for the application mount."
+              }
+            ],
+            "examples": [
+              false,
+              "disabled",
+              "ro",
+              "delegated"
+            ]
           }
         },
         "allOf": [

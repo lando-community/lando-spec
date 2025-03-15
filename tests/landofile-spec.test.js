@@ -195,4 +195,25 @@ describe('Landofile Schema Validation', () => {
     expect(valid).toBe(false);
     expect(validate.errors).toBeTruthy();
   });
+
+  test('validates app_mount configuration', () => {
+    const landofileWithAppMount = {
+      name: 'myapp',
+      recipe: 'lamp',
+      services: {
+        'my-service': {
+          api: 3,
+          type: 'lando',
+          app_mount: 'delegated',
+          services: {
+            image: 'php:8.2-apache',
+            command: 'docker-php-entrypoint apache2-foreground'
+          }
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithAppMount);
+    expect(valid).toBe(true);
+  });
 }); 
