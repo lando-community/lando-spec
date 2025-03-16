@@ -552,6 +552,9 @@
               "ro",
               "delegated"
             ]
+          },
+          "environment": {
+            "$ref": "#/$defs/compose/service/properties/environment"
           }
         },
         "allOf": [

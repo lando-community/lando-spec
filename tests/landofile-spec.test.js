@@ -216,4 +216,66 @@ describe('Landofile Schema Validation', () => {
     const valid = validate(landofileWithAppMount);
     expect(valid).toBe(true);
   });
+
+  test('validates environment configuration directly on service', () => {
+    const landofileWithEnvironment = {
+      name: 'myapp',
+      recipe: 'lamp',
+      services: {
+        'my-service': {
+          type: 'php:8.2',
+          environment: {
+            FOO: 'bar',
+            DEBUG: true,
+            PORT: 8080
+          }
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithEnvironment);
+    expect(valid).toBe(true);
+  });
+
+  test('validates environment configuration via overrides', () => {
+    const landofileWithEnvironmentOverrides = {
+      name: 'myapp',
+      recipe: 'lamp',
+      services: {
+        'my-service': {
+          type: 'php:8.2',
+          overrides: {
+            environment: {
+              FOO: 'bar',
+              DEBUG: true,
+              PORT: 8080
+            }
+          }
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithEnvironmentOverrides);
+    expect(valid).toBe(true);
+  });
+
+  test('validates environment configuration as array', () => {
+    const landofileWithEnvironmentArray = {
+      name: 'myapp',
+      recipe: 'lamp',
+      services: {
+        'my-service': {
+          type: 'php:8.2',
+          environment: [
+            'FOO=bar',
+            'DEBUG=true',
+            'PORT=8080'
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithEnvironmentArray);
+    expect(valid).toBe(true);
+  });
 }); 
