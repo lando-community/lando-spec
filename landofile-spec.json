@@ -36,7 +36,7 @@
         "via": {
           "type": "string",
           "description": "The web server type and version for serving the application. Can be apache, nginx, or cli. Optionally specify a version number after a colon (e.g. nginx:1.25). Apache is the default if not specified. The cli option runs PHP directly without a web server.",
-          "default": "apache",
+          "default": "apache:2.4",
           "oneOf": [
             {
               "const": "cli"
@@ -47,10 +47,9 @@
             }
           ],
           "examples": [
-            "apache",
-            "nginx",
-            "cli",
-            "nginx:1.25"
+            "apache:2.4",
+            "nginx:1.25",
+            "cli"
           ]
         },
         "webroot": {
@@ -190,7 +189,8 @@
               "appserver: composer install",
               "node: npm install"
             ]
-          }
+          },
+          "push": "disabled"
         }
       ],
       "additionalProperties": false
@@ -555,6 +555,9 @@
           },
           "environment": {
             "$ref": "#/$defs/compose/service/properties/environment"
+          },
+          "volumes": {
+            "$ref": "#/$defs/compose/service/properties/volumes"
           }
         },
         "allOf": [
