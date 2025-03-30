@@ -645,14 +645,22 @@
               ]
             },
             "then": {
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "pattern": "^(mysql|mariadb)(:[a-zA-Z0-9._-]+)?$"
+              "anyOf": [
+                {
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "pattern": "^(mysql|mariadb)(:[a-zA-Z0-9._-]+)?$"
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "required": [
+                      "type"
+                    ]
+                  }
                 }
-              },
-              "required": [
-                "type"
               ]
             }
           }
