@@ -184,10 +184,22 @@
       "examples": [
         {
           "install": {
-            "description": "Install dependencies for the project.",
+            "description": "Install dependencies for the project across multiple services.",
             "cmd": [
-              "appserver: composer install",
-              "node: npm install"
+              {
+                "appserver": "composer install"
+              },
+              {
+                "node": "npm install"
+              }
+            ]
+          },
+          "build": {
+            "description": "Build the project using a single service.",
+            "service": "appserver",
+            "cmd": [
+              "composer install",
+              "scripts/build.sh"
             ]
           },
           "push": "disabled"
@@ -672,7 +684,7 @@
         "properties": {
           "service": {
             "type": "string",
-            "description": "The service to run the tool in.",
+            "description": "The service to run the tool in. Required for single-service tooling.",
             "default": "appserver",
             "examples": [
               "appserver",
@@ -682,22 +694,49 @@
           "cmd": {
             "oneOf": [
               {
-                "type": "string"
+                "type": "string",
+                "description": "Command to run in the specified service."
               },
               {
                 "type": "array",
-                "description": "The command(s) to run for the tool.",
+                "description": "Commands to run for the tool. Can be an array of commands or an array of objects with service names as keys.",
                 "items": {
-                  "type": "string"
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "Command string when service is specified."
+                    },
+                    {
+                      "type": "object",
+                      "description": "Service-specific command object with service name as key and command as value.",
+                      "patternProperties": {
+                        "^[a-zA-Z0-9._-]+$": {
+                          "type": "string",
+                          "description": "Command to run in the specified service."
+                        }
+                      },
+                      "additionalProperties": false,
+                      "minProperties": 1,
+                      "maxProperties": 1
+                    }
+                  ]
                 }
               }
             ],
-            "description": "The command(s) to run for the tool.",
+            "description": "The command(s) to run for the tool. When service is not specified, cmd must be an array of objects with service names as keys.",
             "examples": [
               "npm install",
               [
                 "npm install",
                 "npm run build"
+              ],
+              [
+                {
+                  "database": "mysqldump > dbdump.sql"
+                },
+                {
+                  "appserver": "mycommand dbdump.sql"
+                }
               ]
             ]
           },
@@ -789,8 +828,61 @@
           }
         },
         "additionalProperties": false,
-        "required": [
-          "service"
+        "allOf": [
+          {
+            "if": {
+              "not": {
+                "required": [
+                  "service"
+                ]
+              }
+            },
+            "then": {
+              "properties": {
+                "cmd": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^[a-zA-Z0-9._-]+$": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "maxProperties": 1
+                  }
+                }
+              },
+              "required": [
+                "cmd"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "service"
+              ]
+            },
+            "then": {
+              "properties": {
+                "cmd": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
         ],
         "dependencies": {
           "options": {

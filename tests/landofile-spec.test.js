@@ -278,4 +278,143 @@ describe('Landofile Schema Validation', () => {
     const valid = validate(landofileWithEnvironmentArray);
     expect(valid).toBe(true);
   });
+
+  test('validates tooling with service-specific commands', () => {
+    const landofileWithServiceSpecificTooling = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        backup: {
+          description: 'Backup database and process the dump.',
+          cmd: [
+            {
+              database: 'mysqldump > dbdump.sql'
+            },
+            {
+              appserver: 'mycommand dbdump.sql'
+            }
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithServiceSpecificTooling);
+    expect(valid).toBe(true);
+  });
+
+  test('validates tooling with single service and string commands', () => {
+    const landofileWithSingleServiceTooling = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        build: {
+          description: 'Build the project.',
+          service: 'appserver',
+          cmd: [
+            'composer install',
+            'scripts/build.sh'
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithSingleServiceTooling);
+    expect(valid).toBe(true);
+  });
+
+  test('validates tooling with single service and single command', () => {
+    const landofileWithSingleCommand = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        test: {
+          description: 'Run tests.',
+          service: 'appserver',
+          cmd: 'phpunit'
+        }
+      }
+    };
+    
+    const valid = validate(landofileWithSingleCommand);
+    expect(valid).toBe(true);
+  });
+
+  test('rejects tooling without service when cmd is not service objects', () => {
+    const invalidLandofile = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        build: {
+          description: 'Build the project.',
+          cmd: [
+            'composer install',
+            'npm install'
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(invalidLandofile);
+    expect(valid).toBe(false);
+    expect(validate.errors).toBeTruthy();
+  });
+
+  test('rejects tooling with service when cmd contains service objects', () => {
+    const invalidLandofile = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        backup: {
+          description: 'Backup database.',
+          service: 'appserver',
+          cmd: [
+            {
+              database: 'mysqldump > dbdump.sql'
+            }
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(invalidLandofile);
+    expect(valid).toBe(false);
+    expect(validate.errors).toBeTruthy();
+  });
+
+  test('rejects tooling without service and without cmd', () => {
+    const invalidLandofile = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        backup: {
+          description: 'Backup database.'
+        }
+      }
+    };
+    
+    const valid = validate(invalidLandofile);
+    expect(valid).toBe(false);
+    expect(validate.errors).toBeTruthy();
+  });
+
+  test('rejects tooling with invalid service object format', () => {
+    const invalidLandofile = {
+      name: 'myapp',
+      recipe: 'lamp',
+      tooling: {
+        backup: {
+          description: 'Backup database.',
+          cmd: [
+            {
+              'invalid-service-name!': 'mysqldump > dbdump.sql'
+            }
+          ]
+        }
+      }
+    };
+    
+    const valid = validate(invalidLandofile);
+    expect(valid).toBe(false);
+    expect(validate.errors).toBeTruthy();
+  });
 }); 
